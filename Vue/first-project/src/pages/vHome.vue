@@ -9,32 +9,19 @@
             <div class="todoList">
                 <vTodoItem @editTask = "editTask(index)" @deleteTask = "deleteTask(index)" v-for="(todo, index) in todos" :todo="todo" :key="index"/>
             </div>
+            <vDrawer @indexClearing = "indexClearing" @closeDrawer = "closeDrawer" v-bind:seen="seen"  v-bind:todos="todos" v-bind:newTodo="newTodo" v-bind:index="index" />
             <div class="etc">
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
             </div>
             <button v-on:click="showDrawer()" class="newTask">➕</button>
-            <div v-if="seen" v-on:click="fieldClosing()" data-close = "true"  class="drawer">
-                <div class="drawerContent">
-                    <div class="drawerAdd">
-                        <p class="drawerTitle">Title:</p>
-                        <input class="drawerInput" v-model="newTodo.todoTitle" type="text">
-                        <p>Description:</p>
-                        <textarea v-model="newTodo.todoText" name="" id="" cols="30" rows="5"></textarea>
-                        <div class="drawerButtons">
-                            <button v-on:click="addTask()" >Add</button>
-                            <button v-on:click="closeDrawer()">❌</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div v-if="confirmation" v-on:click="confClosing()" data-close = "true" class="conf">
                 <div class="confContent">
                     <p class="confText">Вы уверенны что хотите удалить задачу?</p>
                     <div class="confButtons">
-                        <button @click="closeConfirm()" class="accept">Да</button>
-                        <button @click="confClose()" class="reject">Нет</button>
+                        <button @click="closeConfirm(), indexClearing()"  class="accept">Да</button>
+                        <button @click="confClose(), indexClearing()" class="reject">Нет</button>
                     </div>
                 </div>
             </div>
@@ -43,7 +30,8 @@
 </template>
 
 <script>
-    import vTodoItem from './vTodoItem'
+    import vTodoItem from '../components/vTodoItem'
+    import vDrawer from '../components/vDrawer'
     export default {
         data(){
             return{
@@ -59,7 +47,8 @@
             }
         },
         components:{
-            vTodoItem
+            vTodoItem,
+            vDrawer
         },
         created(){
             if(localStorage.email == ''){
@@ -70,6 +59,12 @@
             this.email = localStorage.email
         },
         methods:{
+            indexClearing(){
+                this.index = ""
+            },
+            closeDrawer(){
+                this.seen = false;
+            },
             editTask(index){
                 this.seen = true;
                 this.newTodo.todoText = this.todos[index].todoText;
@@ -80,24 +75,6 @@
                 this.confirmation = true;
                 this.index = index;
             },
-            addTask(){
-                if(this.index === ""){
-                    this.todos.push({
-                        todoText: this.newTodo.todoText,
-                        todoTitle: this.newTodo.todoTitle
-                    })
-                    this.newTodo.todoText = ""
-                    this.newTodo.todoTitle = ""
-                }else{
-                    this.todos.splice(this.index, 1, {
-                        todoText: this.newTodo.todoText,
-                        todoTitle: this.newTodo.todoTitle
-                    })
-                    this.newTodo.todoText = ""
-                    this.newTodo.todoTitle = ""
-                    this.index = ""
-                }
-            },
             signOut(){
                 localStorage.email = ''
                 this.email = ''
@@ -106,18 +83,6 @@
             showDrawer(){
                 this.seen = true;
             },
-            closeDrawer(){
-                this.seen = false;
-                this.newTodo.todoText = ""
-                this.newTodo.todoTitle = ""
-            },
-            fieldClosing(){
-                if (event.target.dataset.close){
-                    this.seen = false;
-                    this.newTodo.todoText = ""
-                    this.newTodo.todoTitle = ""
-                }
-            },
             confClosing(){
                 if (event.target.dataset.close){
                     this.confirmation = false;
@@ -125,7 +90,6 @@
             },
             confClose(){
                 this.confirmation = false
-                this.index = "";
             },
             closeConfirm(){
                 this.todos.splice(this.index,1)
@@ -169,37 +133,6 @@
         position: fixed;
         bottom: 50px;
         right: 50px;
-    }
-    .drawer{
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.8);
-        top: 0px;
-        left: 0px;
-    }
-    .drawerContent{
-        max-width: 400px;
-        height: 100%;
-        background-color: #fff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .drawerAdd{
-        margin-top: 300px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .drawerInput{
-        padding-right: 58px;
-    }
-    .drawerButtons{
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-around;
-        min-width: 233px;
     }
     .todoList{
         display: flex;

@@ -16,11 +16,6 @@
 <script>
 export default {
     props: ['todo'],
-    data(){
-        return{
-
-        }
-    },
     methods:{
         editTask(){
             this.$emit("editTask")
